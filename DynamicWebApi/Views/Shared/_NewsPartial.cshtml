@@ -1,0 +1,29 @@
+﻿@model JToken
+
+@if (Model == null || !Model.HasValues)
+{
+    <div class="alert alert-warning">Haberler yüklenemedi.</div>
+}
+else
+{
+    <div class="container mt-4">
+        <h3>🗞 Son Haberler</h3>
+        <div class="row">
+            @foreach (var article in Model)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <img src="@article["image"]" class="card-img-top news-image" alt="Haber görseli" />
+                        <div class="card-body">
+                            <h5 class="card-title">@article["title"]</h5>
+                            <a href="@article["url"]" class="btn btn-sm btn-outline-primary" target="_blank">Haberi Oku</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="text-end">
+            <a class="btn btn-link" asp-controller="News" asp-action="Index">📚 Tüm Haberleri Gör</a>
+        </div>
+    </div>
+}

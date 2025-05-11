@@ -1,0 +1,25 @@
+﻿@model JToken
+
+@if (Model == null || !Model.HasValues)
+{
+    <div class="alert alert-warning">Global haberler yüklenemedi.</div>
+}
+else
+{
+    <h3>🌍 Uluslararası Haberler (GNews)</h3>
+    <div class="row">
+        @foreach (var article in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="@article["image"]" class="card-img-top news-image" />
+                    <div class="card-body">
+                        <h5 class="card-title">@article["title"]</h5>
+                        <p class="card-text">@article["description"]</p>
+                        <a href="@article["url"]" class="btn btn-sm btn-outline-primary" target="_blank">Haberi Oku</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

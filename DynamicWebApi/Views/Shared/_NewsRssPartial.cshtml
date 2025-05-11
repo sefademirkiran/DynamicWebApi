@@ -1,0 +1,31 @@
+﻿@using DynamicWebApi.Models
+@model List<RssNewsModel>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-warning">Türkçe haberler yüklenemedi.</div>
+}
+else
+{
+    <h3>📰 Türkçe Haberler (RSS)</h3>
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    @if (!string.IsNullOrEmpty(item.Image))
+                    {
+                        <img src="@item.Image" class="card-img-top news-image" alt="Haber görseli" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Title</h5>
+                        <p class="card-text">@item.Description</p>
+                        <a href="@item.Link" class="btn btn-sm btn-outline-primary" target="_blank">Haberi Oku</a>
+                        <p class="text-muted small mt-2">@item.PubDate</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+

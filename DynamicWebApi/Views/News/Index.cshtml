@@ -1,0 +1,18 @@
+﻿@model JToken
+@using Newtonsoft.Json.Linq
+
+@{
+    ViewData["Title"] = "Haberler";
+    var rssHaberler = ViewBag.RssHaberler as List<dynamic>;
+}
+
+<div class="container mt-4">
+
+    @Html.Partial("_NewsRssPartial", ViewBag.RssHaberler as List<RssNewsModel>)
+
+    <hr />
+
+    @Html.Partial("_NewsGlobalPartial", Model)
+
+</div>
+

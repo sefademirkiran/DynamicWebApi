@@ -1,0 +1,33 @@
+﻿@using DynamicWebApi.Models
+@model List<RssNewsModel>
+
+@if (Model != null && Model.Any())
+{
+    <h3>🗞️ En Yeni Haberler</h3>
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    @if (!string.IsNullOrEmpty(item.Image))
+                    {
+                        <img src="@item.Image" class="card-img-top" style="height:180px; object-fit:cover;" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Title</h5>
+                        <p class="card-text">@item.Description</p>
+                        <a href="@item.Link" class="btn btn-sm btn-outline-primary" target="_blank">Haberi Oku</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="text-end">
+        <a href="/News/Index" class="btn btn-link">Tüm Haberler &raquo;</a>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">Haberler yüklenemedi.</div>
+}

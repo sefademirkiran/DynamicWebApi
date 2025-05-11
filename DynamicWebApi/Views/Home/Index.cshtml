@@ -1,0 +1,21 @@
+﻿@using Newtonsoft.Json.Linq
+@{
+    ViewData["Title"] = "Dynamic API Dashboard";
+}
+
+<div class="container mt-4">
+    <h2>🌐 Dynamic Web API Sayfası</h2>
+    <hr />
+
+    @Html.Partial("_WeatherPartial")
+
+    <hr />
+
+    @Html.Partial("_CurrencyPartial")
+
+    <hr />
+
+    @Html.Partial("_NewsPreviewPartial", ViewBag.PreviewNews as List<RssNewsModel>)
+
+
+</div>
