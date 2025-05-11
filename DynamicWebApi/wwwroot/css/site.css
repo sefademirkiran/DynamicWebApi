@@ -26,3 +26,39 @@ body {
     width:400px;
     object-fit:unset;
 }
+
+/* Navbar link genel görünüm */
+.navbar-nav .nav-link {
+    padding: 10px 16px;
+    margin-right: 10px;
+    border-radius: 8px;
+    color: #343a40; /* text-dark yerine */
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+    /* Hover efekti: arka plan ve yazý rengi deðiþimi + hafif büyüme */
+    .navbar-nav .nav-link:hover {
+        background: linear-gradient(135deg, #0d6efd, #6610f2); /* mavi-mor geçiþ */
+        color: #ffffff !important;
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Aktif sayfa için görünüm */
+    .navbar-nav .nav-link.active-link {
+        background-color: #0d6efd;
+        color: white !important;
+        font-weight: 600;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(13, 110, 253, 0.4);
+    }
+
+/* Küçük ekranlarda margin kaldýr */
+@media (max-width: 576px) {
+    .navbar-nav .nav-link {
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
+}

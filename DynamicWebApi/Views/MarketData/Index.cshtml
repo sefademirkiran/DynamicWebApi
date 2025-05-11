@@ -1,0 +1,77 @@
+﻿@model DynamicWebApi.Models.MarketDataViewModel
+
+<div class="container mt-3 mb-4 text-center">
+    <button class="btn btn-outline-primary mx-2 scroll-btn" data-target="#currency-section">💱 Piyasa Verileri</button>
+    <button class="btn btn-outline-danger mx-2 scroll-btn" data-target="#metal-section">🏅 Değerli Madenler</button>
+    <button class="btn btn-outline-success mx-2 scroll-btn" data-target="#crypto-section">🪙 Kripto Paralar</button>
+</div>
+
+<hr id="currency-section" />
+<div>
+    <br />
+</div>
+<h2 class="text-center">💱 Güncel Döviz Kurları</h2>
+@await Html.PartialAsync("_CurrencyPartial", Model.Currencies)
+
+<hr id="metal-section" />
+<div>
+    <br />
+</div>
+<h2 class="text-center">🏅 Değerli Madenler</h2>
+@await Html.PartialAsync("_PreciousMetalPartial", Model.PreciousMetals)
+
+<hr id="crypto-section" />
+<div> 
+    <br />
+</div>
+<h2 class="text-center">🪙 Kripto Paralar</h2>
+@await Html.PartialAsync("_CryptoPartial", Model.CryptoCurrencies)
+
+@section Scripts {
+    <script>
+        window.currencyRates = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+        Model.Currencies.ToDictionary(x => x.CurrencyCode, x => new
+        {
+            rate = x.ForexSelling,
+            unit = string.IsNullOrWhiteSpace(x.Unit) ? 1 : Convert.ToDecimal(x.Unit)
+        })
+        ));
+
+        window.metalRates = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+        Model.PreciousMetals.ToDictionary(x => x.CurrencyCode, x => new
+        {
+            rate = x.ForexSelling,
+            unit = string.IsNullOrWhiteSpace(x.Unit) ? 1 : Convert.ToDecimal(x.Unit)
+        })
+        ));
+
+        window.cryptoRates = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+        Model.CryptoCurrencies.ToDictionary(x => x.CurrencyCode, x => new
+        {
+            rate = x.ForexSelling,
+            unit = string.IsNullOrWhiteSpace(x.Unit) ? 1 : Convert.ToDecimal(x.Unit)
+        })
+        ));
+
+        // Sabit kurlar
+        window.cryptoRates["TRY"] = { rate: 1, unit: 1 };
+        window.cryptoRates["USD"] = { rate: 1, unit: 1 };
+    </script>
+
+    <script src="~/js/marketConverter.js"></script>
+    <script src="~/js/metalConverter.js"></script>
+    <script src="~/js/cryptoConverter.js"></script>
+
+    <script>
+        document.querySelectorAll('.scroll-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-target');
+                const target = document.querySelector(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+}
+

@@ -1,0 +1,69 @@
+﻿@model List<DynamicWebApi.Models.MarketDataModel>
+
+<div class="container mt-5">
+    <h4>🔄 Kur Dönüştürücü</h4>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <label>Miktar</label>
+            <input type="number" id="amount" class="form-control" placeholder="Örn: 100" />
+        </div>
+        <div class="col-md-3">
+            <label>Kaynak Birim</label>
+            <select id="from-currency" class="form-control">
+                @foreach (var item in Model.OrderBy(x => x.CurrencyName ?? ""))
+                {
+                    <option value="@item.CurrencyCode">@item.CurrencyCode - @item.CurrencyName</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Hedef Birim</label>
+            <select id="to-currency" class="form-control">
+                @foreach (var item in Model.OrderBy(x => x.CurrencyName ?? ""))
+                {
+                    <option value="@item.CurrencyCode">@item.CurrencyCode - @item.CurrencyName</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>&nbsp;</label>
+            <button class="btn btn-primary w-100" id="convert-btn">Çevir</button>
+        </div>
+    </div>
+    <div class="mb-4">
+        <strong>Sonuç:</strong> <span id="conversion-result">-</span>
+    </div>
+
+    <h3>💱 Döviz ve Altın Kurları</h3>
+    <table class="table table-striped table-bordered" id="marketTable">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Kur</th>
+                <th scope="col">Alış</th>
+                <th scope="col">Satış</th>
+                <th scope="col">Birim</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderBy(x => x.CurrencyName ?? ""))
+            {
+                <tr>
+                    <td>@item.CurrencyName (@item.CurrencyCode)</td>
+                    <td>@string.Format("{0:N2}", item.ForexBuying)</td>
+                    <td>@string.Format("{0:N2}", item.ForexSelling)</td>
+                    <td>@item.Unit</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#marketTable').DataTable();
+        });
+    </script>
+    <script src="~/js/marketConverter.js"></script>
+}

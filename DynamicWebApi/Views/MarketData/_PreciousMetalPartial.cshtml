@@ -1,0 +1,71 @@
+﻿@model List<DynamicWebApi.Models.MarketDataModel>
+
+<div class="container mt-5">
+    <h4>🥇 Değerli Madenleri Dönüştür</h4>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <label>Miktar</label>
+            <input type="number" id="metal-amount" class="form-control" placeholder="Örn: 1" />
+        </div>
+        <div class="col-md-3">
+            <label>Kaynak</label>
+            <select id="metal-from" class="form-control">
+                @foreach (var item in Model.OrderBy(x => x.CurrencyName ?? ""))
+                {
+                    <option value="@item.CurrencyCode">@item.CurrencyCode - @item.CurrencyName</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Hedef</label>
+            <select id="metal-to" class="form-control">
+                @foreach (var item in Model.OrderBy(x => x.CurrencyName ?? ""))
+                {
+                    <option value="@item.CurrencyCode">@item.CurrencyCode - @item.CurrencyName</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>&nbsp;</label>
+            <button class="btn btn-warning w-100" id="metal-convert-btn">Çevir</button>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <strong>Sonuç:</strong> <span id="metal-conversion-result">-</span>
+    </div>
+
+    <table class="table table-striped table-bordered" id="metalTable">
+        <thead class="table-dark">
+            <tr>
+                <th>Maden</th>
+                <th>Alış</th>
+                <th>Satış</th>
+                <th>Birim</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderBy(x => x.CurrencyName ?? ""))
+            {
+                <tr>
+                    <td>@item.CurrencyName (@item.CurrencyCode)</td>
+                    <td>@string.Format("{0:N2}", item.ForexBuying)</td>
+                    <td>@string.Format("{0:N2}", item.ForexSelling)</td>
+                    <td>@item.Unit</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        window.metalRates = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+            Model.ToDictionary(x => x.CurrencyCode, x => new {
+                rate = x.ForexSelling,
+                unit = string.IsNullOrWhiteSpace(x.Unit) ? 1 : Convert.ToDecimal(x.Unit)
+            })
+        ));
+    </script>
+}
