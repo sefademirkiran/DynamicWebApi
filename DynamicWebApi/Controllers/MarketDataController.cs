@@ -37,6 +37,14 @@ namespace DynamicWebApi.Controllers
             return View(viewModel);
         }
 
+        private decimal ParseTcmbDecimal(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return 0;
+            input = input.Replace(",", ".");
+            return decimal.TryParse(input, System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture, out var result) ? result : 0;
+        }
+
         private async Task<List<MarketDataModel>> GetTcmbMarketDataAsync()
         {
             var list = new List<MarketDataModel>();
@@ -57,8 +65,8 @@ namespace DynamicWebApi.Controllers
                     {
                         CurrencyCode = code,
                         CurrencyName = currency.Element("Isim")?.Value,
-                        ForexBuying = ParseDecimal(currency.Element("ForexBuying")?.Value),
-                        ForexSelling = ParseDecimal(currency.Element("ForexSelling")?.Value),
+                        ForexBuying = ParseTcmbDecimal(currency.Element("ForexBuying")?.Value),
+                        ForexSelling = ParseTcmbDecimal(currency.Element("ForexSelling")?.Value),
                         Unit = currency.Element("Unit")?.Value ?? "1",
                         Date = dateAttr,
                         SourceType = "TCMB",
@@ -81,15 +89,6 @@ namespace DynamicWebApi.Controllers
             }
 
             return list;
-        }
-
-        // Yardımcı Fonksiyon
-        private decimal ParseDecimal(string? input)
-        {
-            if (string.IsNullOrWhiteSpace(input)) return 0;
-            input = input.Replace(",", "."); // Nokta formatına çevir
-            return decimal.TryParse(input, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var result)
-                ? result : 0;
         }
 
         private async Task<List<MarketDataModel>> GetCryptoDataAsync()
@@ -127,6 +126,15 @@ namespace DynamicWebApi.Controllers
             return list;
         }
 
+
+        private decimal ParseBistDecimal(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return 0;
+            input = input.Replace(".", "").Replace(",", ".");
+            return decimal.TryParse(input, System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture, out var result) ? result : 0;
+        }
+
         private async Task<List<MarketDataModel>> GetPreciousMetalDataFromBISTAsync()
         {
             var list = new List<MarketDataModel>();
@@ -135,30 +143,51 @@ namespace DynamicWebApi.Controllers
             using (var handler = new HttpClientHandler { AllowAutoRedirect = true })
             using (var client = new HttpClient(handler))
             {
-                // Bot engeline karşı User-Agent eklendi
-                client.DefaultRequestHeaders.Add("User-Agent",
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-                    "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
+                // Bot engeline karşı User-Agent ve Accept ekleniyor
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                client.DefaultRequestHeaders.Add("Accept", "application/xml");
 
-                var response = await client.GetStringAsync(url);
-                var xmlDoc = XDocument.Parse(response);
+                string response;
+
+                try
+                {
+                    response = await client.GetStringAsync(url);
+                }
+                catch (HttpRequestException ex)
+                {
+                    // Geriye boş liste döndür ve logla
+                    Console.WriteLine("HTTP isteği başarısız: " + ex.Message);
+                    return list;
+                }
+
+                XDocument xmlDoc;
+
+                try
+                {
+                    xmlDoc = XDocument.Parse(response);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("XML parse hatası: " + ex.Message);
+                    return list;
+                }
 
                 var date = xmlDoc.Descendants("gun").FirstOrDefault()?.Value;
 
                 var metalMap = new Dictionary<string, string>
-        {
-            { "altindeger", "Altın" },
-            { "gumusdeger", "Gümüş" },
-            { "platindeger", "Platin" },
-            { "paladyumdeger", "Paladyum" }
-        };
+                {
+                    { "altindeger", "Altın" },
+                    { "gumusdeger", "Gümüş" },
+                    { "platindeger", "Platin" },
+                    { "paladyumdeger", "Paladyum" }
+                };
 
                 foreach (var kv in metalMap)
                 {
                     var element = xmlDoc.Descendants(kv.Key).FirstOrDefault();
                     if (element == null) continue;
 
-                    var price = ParseDecimal(element.Value); // Nokta-virgül uyumu için helper
+                    var price = ParseBistDecimal(element.Value);
 
                     list.Add(new MarketDataModel
                     {
@@ -166,17 +195,28 @@ namespace DynamicWebApi.Controllers
                         CurrencyName = kv.Value,
                         ForexBuying = price,
                         ForexSelling = price,
-                        Unit = "1", // TL / kg
+                        Unit = "1", // TL/kg
                         Date = date,
                         SourceType = "BIST",
                         GroupName = "Değerli Madenler"
                     });
                 }
-            }
 
+                list.Add(new MarketDataModel
+                {
+                    CurrencyCode = "TRY",
+                    CurrencyName = "Türk Lirası",
+                    ForexBuying = 1,
+                    ForexSelling = 1,
+                    Unit = "1",
+                    Date = date,
+                    SourceType = "BIST",
+                    GroupName = "Değerli Madenler"
+                });
+            }
+            Console.WriteLine(list);
             return list;
         }
-
 
 
     }
